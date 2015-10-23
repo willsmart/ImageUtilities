@@ -1,0 +1,41 @@
+//
+// Prefix header for all source files of the 'Fractal surfer' target in the 'Fractal surfer' project
+//
+#ifdef __OBJC__
+
+#import <Availability.h>
+
+#ifndef __IPHONE_3_0
+#warning "This project uses features only available in iPhone SDK 3.0 and later."
+#endif
+
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <QuartzCore/QuartzCore.h>
+#import <objc/runtime.h>
+#import <AssetsLibrary/AssetsLibrary.h>
+
+//#import <ZBarSDK/ZBarSDK.h>
+
+#import "IVarsforCategories.h"
+#import "tinyViterbi.h"
+#import "NSData+ReedSolomon.h"
+#import "NSData+viterbi37.h"
+#import "NSData+Ecc.h"
+#import "UIImage+DataLayer.h"
+#import "NSData+Compression.h"
+#import "Util.h"
+
+#ifndef SWIFT_IMAGEUTILITIES
+#ifndef __cplusplus
+    #define __cplusplus 201103L
+   // #import "ImageUtilities-Swift.h"
+    #undef __cplusplus
+#else
+    #undef __cplusplus
+    #define __cplusplus 201103L
+    #import "ImageUtilities-Swift.h"
+#endif
+#endif
+
+#endif

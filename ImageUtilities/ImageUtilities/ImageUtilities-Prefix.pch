@@ -19,8 +19,6 @@
 
 #import "IVarsforCategories.h"
 #import "tinyViterbi.h"
-#import "NSData+ReedSolomon.h"
-#import "NSData+viterbi37.h"
 #import "NSData+Ecc.h"
 #import "UIImage+DataLayer.h"
 #import "NSData+Compression.h"

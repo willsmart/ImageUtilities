@@ -33,7 +33,7 @@ public extension UIImage {
     func decodedDataLayer()->NSData? {
         //let sz = CGSizeMake(max(size.width,size.height), max(size.width,size.height))
         if let (data,size) = pixelBytes() {
-            return UIImage.dataLayerInImage(data, imageSize: size, byteModulus:0xff)
+            return UIImage.dataLayerInImage(data, imageSize: size)
         }
         else {
             return nil
@@ -41,20 +41,20 @@ public extension UIImage {
     }
     
     
-    class func addDataLayerToImageData(imageData:NSMutableData, imageSize:CGSize, dataLayerData:NSData?=nil, data:NSData?=nil, dataString:String?=nil, byteModulus:UInt8)->Bool {
+    class func addDataLayerToImageData(imageData:NSMutableData, imageSize:CGSize, dataLayerData:NSData?=nil, data:NSData?=nil, dataString:String?=nil, pixelModulusOption:Int)->Bool {
         if let dataString = dataString {
             deb("Encode with string [\(dataString.lengthOfBytesUsingEncoding(NSUTF8StringEncoding))]: \(dataString)")
-            return addDataLayerToImageData(imageData, imageSize:imageSize, dataLayerData: dataString.dataUsingEncoding(NSUTF8StringEncoding), byteModulus:byteModulus)
+            return addDataLayerToImageData(imageData, imageSize:imageSize, dataLayerData: dataString.dataUsingEncoding(NSUTF8StringEncoding), pixelModulusOption:pixelModulusOption)
         }
         guard let dataLayerData = dataLayerData else {return false}
         
-        return _addDataLayerToImageData(imageData, imageSize: imageSize, dataLayerData: dataLayerData, byteModulus:byteModulus)
+        return _addDataLayerToImageData(imageData, imageSize: imageSize, dataLayerData: dataLayerData, pixelModulusOptionIndex: Int32(pixelModulusOption))
     }
     
     
-    func copiedDataWithDataLayer(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, byteModulus:UInt8)->(NSMutableData,CGSize)? {
+    func copiedDataWithDataLayer(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, pixelModulusOption:Int)->(NSMutableData,CGSize)? {
         if let (imgData,size) = pixelBytes() {
-            if UIImage.addDataLayerToImageData(imgData, imageSize: size, dataLayerData:dataLayerData, data:data,dataString:string, byteModulus:byteModulus) {
+            if UIImage.addDataLayerToImageData(imgData, imageSize: size, dataLayerData:dataLayerData, data:data,dataString:string, pixelModulusOption:pixelModulusOption) {
                 return (imgData,size)
             }
             else {return nil}
@@ -62,8 +62,8 @@ public extension UIImage {
         else {return nil}
     }
     
-    func encodeUsingDataLayer(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, byteModulus:UInt8)->UIImage? {
-        if let (data,size) = copiedDataWithDataLayer(dataLayerData:dataLayerData, data:data, string:string, byteModulus:byteModulus) {
+    func encodeUsingDataLayer(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, pixelModulusOption:Int)->UIImage? {
+        if let (data,size) = copiedDataWithDataLayer(dataLayerData:dataLayerData, data:data, string:string, pixelModulusOption:pixelModulusOption) {
             return UIImage.imageFromData(data, size: size)
         }
         else {
@@ -89,18 +89,18 @@ public extension UIImage {
         else {return nil}
     }
     
-    func exportableDataLayerEncodedRepresentation(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, byteModulus:UInt8?=nil)->NSData? {
+    func exportableDataLayerEncodedRepresentation(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, pixelModulusOption:Int?=nil)->NSData? {
 
-        guard let byteModulus = byteModulus else {
-            for byteModulus in UInt8(0)...UInt8(3) {
-                if let rep = exportableDataLayerEncodedRepresentation(dataLayerData: dataLayerData, data: data, string: string, byteModulus: byteModulus) {
+        guard let pixelModulusOption = pixelModulusOption else {
+            for pixelModulusOption in 0..<3 {
+                if let rep = exportableDataLayerEncodedRepresentation(dataLayerData: dataLayerData, data: data, string: string, pixelModulusOption: pixelModulusOption) {
                     return rep
                 }
             }
             return nil
         }
         
-        print("\n\n\nWrite watermark (mod \(byteModulus)....\n\n\n\n")
+        print("\n\n\nWrite watermark (mod \(pixelModulusOption)....\n\n\n\n")
 
         let sz0 = CGSizeMake(self.size.width*self.scale, self.size.height*self.scale)
         let sz = CGSizeMake(
@@ -111,7 +111,7 @@ public extension UIImage {
         let image:UIImage
     
         if let (imageData,imageSize) = scaledToSize(sz).JPGDistorted(0.1)?.0.pixelBytes() {
-            UIImage.addDataLayerToImageData(imageData, imageSize: imageSize, dataLayerData: dataLayerData, data: data, dataString: string, byteModulus:byteModulus)
+            UIImage.addDataLayerToImageData(imageData, imageSize: imageSize, dataLayerData: dataLayerData, data: data, dataString: string, pixelModulusOption:pixelModulusOption)
             if let im = UIImage.imageFromData(imageData, size: imageSize) {
                 image = im
             }
@@ -127,9 +127,8 @@ public extension UIImage {
         let (lqim,_) = image.JPGDistorted(0.4)!
         
         var ok=false
-        if let s = lqim.decodedDataLayer() {
+        if let _ = lqim.decodedDataLayer() {
             ok=true
-            print(s)
         }
         else {
             print(" no data layer read back from image. Image must be too fussy")

@@ -81,7 +81,7 @@ static NSMutableData *s_pathData=nil;
     *(to++)=ENCODEDNIBBLE(0, state);
     *(to++)=ENCODEDNIBBLE(0, state);
 
-    printf("for\n%s\n%s\n",self.description.UTF8String,ret.description.UTF8String);
+    dprint("for\n%s\n%s\n",self.description.UTF8String,ret.description.UTF8String)
 
     return ret;
 }
@@ -169,8 +169,8 @@ static NSMutableData *s_pathData=nil;
     printf("\n"); \
 })
     
-    int bfi=1;
-    for (int togo = retN*8+6; togo>=0;) {
+    DEB(int bfi=1;)
+    for (int togo = retN*8+14; togo>0;) {
         for (int biti = 0; biti<8; biti+=2) {
             BUTTERFLIES(states)
             BUTTERFLIES(tmpStates)
@@ -181,8 +181,8 @@ static NSMutableData *s_pathData=nil;
     uint8_t *to=(uint8_t*)ret.mutableBytes, state=0;
     uint8_t byte=0;
     for (uint8_t bit = 0x80;bit;bit>>=1) {
-        dprint("%0qx ",paths[-1])
-        if (*(--paths)&(1L<<state)) {
+        dprint("x %016qx ",paths[-1])
+        if (*(--paths)&(1LL<<state)) {
             state=(state>>1)|0x20;
             byte|=bit;
         }
@@ -193,7 +193,7 @@ static NSMutableData *s_pathData=nil;
     for (int bytei=retN-1;bytei>=0;bytei--) {
         for (uint8_t bit = 0x80;bit;bit>>=1) {
             dprint("%016qx ",paths[-1])
-            if (*(--paths)&(1L<<state)) {
+            if (*(--paths)&(1LL<<state)) {
                 state=(state>>1)|0x20;
                 to[bytei]|=bit;
             }
@@ -202,7 +202,7 @@ static NSMutableData *s_pathData=nil;
         }
     }
     
-    printf("for\n%s\n%s\n",self.fromBits.description.UTF8String,ret.description.UTF8String);
+    dprint("for\n%s\n%s\n",self.fromBits.description.UTF8String,ret.descriptionsShiftedThroughBits.UTF8String)
     
     objc_sync_exit(s_pathData);
     return ret;

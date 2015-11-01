@@ -21,7 +21,7 @@ static NSData *s_ref=nil;
     NSArray *opts = PIXELMODOPTIONS;
     if (pixelModulusOptionIndex<0 || pixelModulusOptionIndex>=opts.count) return NO;
     [self _addDataLayerToImageData:imageData imageSize:imageSize dataLayerData:dataLayerData pixelModulus:PIXMODFROMOBJECT(opts[pixelModulusOptionIndex])];
-    NSData *d = [self dataLayerInImage:imageData imageSize:imageSize];
+    //NSData *d = [self dataLayerInImage:imageData imageSize:imageSize];
     return YES;
 }
 

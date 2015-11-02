@@ -68,7 +68,7 @@ static int enc32Len() {
     const int modLen = PIXMODLEN(pixelModulus);
     NSInteger Npix=self.length/sizeof(EccPixelCount), offs = MIN(Npix*modLen,(NSInteger)round(range.location)), len = MIN(Npix*modLen-offs,(NSInteger)round(range.length));
 
-    if ((retLen<=0)||(len<=0)) return NSMutableData.data;
+    if ((retLen<=0)||(len<=0)||!modLen) return NSMutableData.data;
 
     NSMutableData *ret = [NSMutableData dataWithLength:retLen];
     int8_t *bits = (int8_t*)ret.mutableBytes;
@@ -205,8 +205,10 @@ static int enc32Len() {
 
 -(NSMutableData*)eccGridEncoded:(EccPixelModulus)pixelModulus {
     const int modLen = PIXMODLEN(pixelModulus);
+    if (!modLen) return NSMutableData.data;
     const int idLen=enc32Len();
     NSMutableData *payload = self.gzipDeflate.eccEncoded;
+    if (!payload) payload = NSMutableData.data;
     int _Nbits = (int)(payload.length+idLen*2)*8;
     int Npix = (int)round(pow(2,ceil(log2((_Nbits+modLen-1)/modLen))));
     int Nbits = Npix*modLen;

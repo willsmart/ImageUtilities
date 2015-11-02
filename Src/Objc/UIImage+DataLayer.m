@@ -29,7 +29,7 @@ static NSData *s_ref=nil;
 +(bool)_addDataLayerToImageData:(NSMutableData*)imageData imageSize:(CGSize)imageSize dataLayerData:(NSData*)dataLayerData pixelModulus:(EccPixelModulus)pixelModulus {
     const int modLen = PIXMODLEN(pixelModulus);
     NSData *d = [dataLayerData eccGridEncoded:pixelModulus];
-    if (!d) return NO;
+    if (!d || !modLen) return NO;
     
     bool xIsMajor = round(imageSize.width)>=round(imageSize.height);
     int power = (int)round(log2(d.length*8/modLen));

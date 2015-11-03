@@ -39,11 +39,9 @@ extern NSString * __nonnull memorySummaryString();
 #define cached_return(__type,__ret,...) _cached_return(self,__type,__ret,__VA_ARGS__)
 #define _cached_return(__sync,__type,__ret,...) do { \
     static __type __cached_return_value = nil; \
-    NSLog(@"%p%@",__cached_return_value,((NSObject*)__cached_return_value).description); \
     static dispatch_once_t __cached_return_once_token; \
     @synchronized(__sync) { \
         dispatch_once(&__cached_return_once_token, ^{__VA_ARGS__;__cached_return_value=(__ret);}); \
-        NSLog(@"b %p%@",__cached_return_value,((NSObject*)__cached_return_value).description); \
         return(__cached_return_value); \
     } \
 } while(NO)

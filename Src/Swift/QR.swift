@@ -198,7 +198,7 @@ public extension UIImage {
     func dataLayerCopy(rect:CGRect?=nil, mask:UInt8 = s_defaultMask)->UIImage? {
         if let (data,size) = copiedDataLayerData(rect,mask:mask) {
             let im=UIImage.imageFromData(data, size: size)
-            im?.saveToCameraRoll()
+            //im?.saveToCameraRoll()
             return im
         }
         else {
@@ -424,7 +424,7 @@ public extension _CIImage {
         }
         
         
-        UIImage(CGImage: CIContext().createCGImage(self, fromRect: extent)).saveToCameraRoll()
+        //UIImage(CGImage: CIContext().createCGImage(self, fromRect: extent)).saveToCameraRoll()
         
         deb("qrdecoding ciimage \(extent)")
         var ret=[(string: String, (topLeft:CGPoint, topRight:CGPoint, bottomLeft:CGPoint, bottomRight:CGPoint))]()
@@ -477,7 +477,7 @@ public extension CGImage {
                 for y in 0..<side {
                     for x in 0..<side {
                         let img = gridElement(pos: CGPointMake(CGFloat(x), CGFloat(y)), side: CGSizeMake(CGFloat(side),CGFloat(side)))
-                        async{UIImage(CGImage: img!).saveToCameraRoll()}
+                        //async{UIImage(CGImage: img!).saveToCameraRoll()}
                         if let el = img?.qrdecode().first {
                             deb("ok")
                             let d = el.dataUsingEncoding(NSISOLatin1StringEncoding)!

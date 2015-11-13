@@ -17,6 +17,8 @@ private var s_dataKey:UnsafePointer<Void>?
 
 
 public extension UIImage {
+    public var pixelSize:CGSize {get {return CGSizeMake(size.width*scale, size.height*scale);}}
+    
     public func scaledToSize(newSize:CGSize)->UIImage {
         let absSize = CGSizeMake(abs(newSize.width), abs(newSize.height))
         UIGraphicsBeginImageContextWithOptions(absSize, false, 1.0)

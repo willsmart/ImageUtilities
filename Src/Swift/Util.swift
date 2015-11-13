@@ -35,11 +35,43 @@ private let pathAllowedChars = NSCharacterSet(charactersInString: "<>|\\:/()&;\t
 public extension String {
     public var escapeForPathComponent:String {
         get {
-            return String(characters.map({ (c:Character) -> String in
-                pathAllowedChars.characterIsMember(String(c).utf16.first!) ? String(c) : "_"
+            return String(characters.map({ (c:Character) -> Character in
+                pathAllowedChars.characterIsMember(String(c).utf16.first!) ? c : "_"
             }))
         }
     }
 }
 
-        
+public extension NSURL {
+    public var pathRelativeToDocumentsFolder:String? {
+        get {
+            let str = absoluteString
+            if fileURL {
+                if let r = str.rangeOfString("/Application/[\\w-]+/Documents/", options: .RegularExpressionSearch) {
+                    return str.substringFromIndex(r.endIndex)
+                }
+                else {return nil}
+            }
+            else {return nil}
+        }
+    }
+    
+    public func annexFileURLInDirectory(dir:NSURL)->NSURL {
+        let path:String
+        if let relPath = pathRelativeToDocumentsFolder {
+            path = "doc \(relPath)"
+        }
+        else {
+            path = absoluteString
+        }
+        return dir.URLByAppendingPathComponent(path.escapeForPathComponent)
+    }
+    
+    public var thumbnailURL:NSURL {
+        get {
+            return annexFileURLInDirectory(documentsFolder.URLByAppendingPathComponent("thumbnails", isDirectory: true))
+        }
+    }
+}
+
+

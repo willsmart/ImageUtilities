@@ -258,7 +258,7 @@ A-z 26 52
 
 @implementation NSData(alphaNumEncode)
 -(NSString*)alphaNumZipEncode {
-    return [self.gzipDeflate alphaNumEncodeWithZip:YES];
+    return [self.tightGzipDeflate alphaNumEncodeWithZip:YES];
 }
 -(NSString*)alphaNumEncode {
     return [self alphaNumEncodeWithZip:NO];
@@ -324,7 +324,7 @@ A-z 26 52
 }
 
 
--(NSString*)alphaNumDecodeAsDictionary {
+-(NSDictionary*)alphaNumDecodeAsDictionary {
     NSData *d = self.alphaNumDecodeAsData;
     NSError *err=nil;
     return d?[NSJSONSerialization JSONObjectWithData:d options:NSJSONReadingAllowFragments error:&err]:nil;
@@ -379,6 +379,9 @@ A-z 26 52
 
     
     
+
+
+
 
 
 

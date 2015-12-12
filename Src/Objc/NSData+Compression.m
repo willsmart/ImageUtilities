@@ -59,8 +59,12 @@
 	}
 	else return nil;
 }
-- (NSData *) zlibDeflate
-{
+
+
+- (NSData *) tightZlibDeflate {return [self zlibDeflateWithCompressionLevel:Z_BEST_COMPRESSION];}
+- (NSData *) zlibDeflate {return [self zlibDeflateWithCompressionLevel:Z_DEFAULT_COMPRESSION];}
+
+- (NSData *) zlibDeflateWithCompressionLevel:(int)level {
     if ([self length] == 0) return self;
 	
 	z_stream strm;
@@ -145,8 +149,12 @@
 	}
 	else return nil;
 }
-- (NSData *) gzipDeflate
-{
+
+
+- (NSData *) tightGzipDeflate {return [self gzipDeflateWithCompressionLevel:Z_BEST_COMPRESSION];}
+- (NSData *) gzipDeflate {return [self gzipDeflateWithCompressionLevel:Z_DEFAULT_COMPRESSION];}
+
+- (NSData *) gzipDeflateWithCompressionLevel:(int)level {
     if ([self length] == 0) return self;
 	
 	z_stream strm;

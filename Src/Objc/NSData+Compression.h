@@ -26,7 +26,9 @@
 /*! Returns a data object containing a Zlib compressed copy of the receivers contents.
  * \returns A data object containing a Zlib compressed copy of the receivers contents.
  */
+- (NSData *) tightZlibDeflate;
 - (NSData *) zlibDeflate;
+- (NSData *) zlibDeflateWithCompressionLevel:(int)level;
 
 #pragma mark -
 #pragma mark Gzip Compression routines
@@ -37,6 +39,8 @@
 /*! Returns a data object containing a Gzip compressed copy of the receivers contents.
  * \returns A data object containing a Gzip compressed copy of the receivers contents.
  */
+- (NSData *) tightGzipDeflate;
 - (NSData *) gzipDeflate;
+- (NSData *) gzipDeflateWithCompressionLevel:(int)level;
 
 @end

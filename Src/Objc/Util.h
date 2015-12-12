@@ -7,6 +7,7 @@
 //
 
 
+
 extern NSString * __nonnull memorySummaryString();
 #ifdef __cplusplus
 #ifdef DEBUG
@@ -95,7 +96,7 @@ extern UIColor *__nonnull UIColorFromRGB(unsigned long value);
 -(NSString*__nullable)alphaNumEncode;
 
 -(NSString*__nullable)alphaNumDecodeAsString;
--(NSString*__nullable)alphaNumDecodeAsDictionary;
+-(NSDictionary*__nullable)alphaNumDecodeAsDictionary;
 -(NSMutableData*__nullable)alphaNumDecodeAsData;
 
 @end

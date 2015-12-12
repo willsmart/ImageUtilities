@@ -585,7 +585,7 @@ static NSData *s_ref=nil;
         }
         dprint("\n");
     }
-    printf("Max error %.1f%%\n",maxErr);
+    dprint("Max error %.1f%%\n",maxErr);
     return YES;
 }
 #undef dprint

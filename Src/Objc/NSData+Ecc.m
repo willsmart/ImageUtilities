@@ -207,7 +207,7 @@ static int enc32Len() {
     const int modLen = PIXMODLEN(pixelModulus);
     if (!modLen) return NSMutableData.data;
     const int idLen=enc32Len();
-    NSMutableData *payload = self.gzipDeflate.eccEncoded;
+    NSMutableData *payload = self.tightGzipDeflate.eccEncoded;
     if (!payload) payload = NSMutableData.data;
     int _Nbits = (int)(payload.length+idLen*2)*8;
     int Npix = (int)round(pow(2,ceil(log2((_Nbits+modLen-1)/modLen))));
@@ -547,8 +547,8 @@ static NSInteger s_randomConeDataLen=0;
 +(const uint32_t*)randomConeData {
     static NSData *s_randomConeData=nil;
     if (!s_randomConeData) {
-        NSURL *documentsFolder = [NSURL fileURLWithPath:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0]];
-        NSURL *url = [documentsFolder URLByAppendingPathComponent:@"randomCodeData"];
+        //NSURL *documentsFolder = [NSURL fileURLWithPath:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0]];
+        NSURL *url = nil;//[documentsFolder URLByAppendingPathComponent:@"randomCodeData"];
         s_randomConeData = [NSData dataWithContentsOfURL:url];
         if (!s_randomConeData) {
             NSURL *url = [NSBundle.mainBundle URLForResource:@"randomCodeData" withExtension:nil];

@@ -1,3 +1,5 @@
+#import "NSData+MD5.h"
+
 @implementation NSData(ECCCode)
 
 static int s_encodeCount=3;
@@ -544,22 +546,28 @@ static NSInteger s_randomConeDataLen=0;
     [self randomConeData];
     return s_randomConeDataLen;
 }
+static const char *s_expectedConeHash="2260ed73ca2e3a1059016b8dcf391d96";
+
 +(const uint32_t*)randomConeData {
     static NSData *s_randomConeData=nil;
     if (!s_randomConeData) {
-        //NSURL *documentsFolder = [NSURL fileURLWithPath:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0]];
-        NSURL *url = nil;//[documentsFolder URLByAppendingPathComponent:@"randomCodeData"];
-        s_randomConeData = [NSData dataWithContentsOfURL:url];
-        if (!s_randomConeData) {
-            NSURL *url = [NSBundle.mainBundle URLForResource:@"randomCodeData" withExtension:nil];
-            if (url) s_randomConeData = [NSData dataWithContentsOfURL: url];
-            if (!s_randomConeData) {
-                s_randomConeData = [self _randomConeData:1<<16];
-                [s_randomConeData writeToURL:url atomically: YES];
+        NSURL *url = [NSBundle.mainBundle URLForResource:@"randomCodeData" withExtension:nil];
+        if (url) s_randomConeData = [NSData dataWithContentsOfURL: url];
+        if (s_randomConeData) {
+            NSString *hash=s_randomConeData.md5hash,*expHash=[NSString stringWithFormat:@"%s",s_expectedConeHash];
+            if (![hash isEqualToString:expHash]) {
+                //printf("\nERROR: cone data invalid\n");
+                //printf("\"%s\" vs \"%s\"\n",expHash.UTF8String,hash.UTF8String);
+                s_randomConeData=nil;
             }
+        }
+        if (!s_randomConeData) {
+            printf("\nERROR needed to prepare my own random cone data, this will break coding for shared images.\n");
+            s_randomConeData = [self _randomConeData:1<<16];
         }
         s_randomConeDataLen = s_randomConeData.length/4;
     }
+    
     return (const uint32_t*)s_randomConeData.bytes;
 }
 

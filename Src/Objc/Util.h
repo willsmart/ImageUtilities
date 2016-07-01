@@ -6,7 +6,14 @@
 //  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 //
 
-
+#define LERP(a,b,f) \
+    ({ __typeof__ (f) __f = (f); \
+        ((a)*(1-__f)+(b)*__f); \
+    })
+#define DELERP(a,b,v) \
+    ({ __typeof__ (a) __a = (a); \
+        (((v)-__a)/((b)-__a)); \
+    })
 
 extern NSString * __nonnull memorySummaryString();
 #ifdef __cplusplus
@@ -48,9 +55,65 @@ extern NSString * __nonnull memorySummaryString();
 } while(NO)
 
 
+extern NSString *__nullable replaceTokensInFilenameString(NSString *__nullable filename);
+extern NSString *__nonnull documentPathForFilename(NSString *__nullable filename);
+extern BOOL saveScreenshot(NSString * __nonnull filePath);
+extern BOOL saveScreenshotIfChanged(NSString * __nonnull filePath,NSData *__strong __nullable* __nullable screenshotData);
+extern NSData *__nullable zippedDirectory(NSArray * __nonnull dirPaths);
+
+extern time_t _DEBLog_time;
+#define IF(__dependsOnMacro,...) __dependsOnMacro(__VA_ARGS__)
+
+#define printfLOGIF(__dependsOnMacro,...) IF(__dependsOnMacro,_DEBLog_time=time(nil);printf("%d:%02d:%02d %s\n",(int)((_DEBLog_time/(60*60))%24),(int)((_DEBLog_time/(60))%60),(int)(_DEBLog_time%60),[NSString stringWithFormat:__VA_ARGS__].UTF8String);)
+#define printfLOGOBJECTIF(__dependsOnMacro,__object,__depth,...) IF(__dependsOnMacro,printf("%s%s\n",[NSString stringWithFormat:__VA_ARGS__].UTF8String,[PropertyDescription dumpObject:__object filter:^(PropertyDescription *propertyDesc,NSObject *value,NSArray *propertyDescAncestors,NSArray *valueAncestors,NSString *__strong*p_dumpString,NSNumber *__strong*walk){*p_walk=(propertyDescAncestors.count<(__depth))?@(YES):nil;return(YES);}].UTF8String);)
+#define printfLOGSYSOBJECTIF(__dependsOnMacro,__object,__depth,...) IF(__dependsOnMacro,printf("%s%s\n",[NSString stringWithFormat:__VA_ARGS__].UTF8String,[PropertyDescription dumpObject:__object filter:^(PropertyDescription *propertyDesc,NSObject *value,NSArray *propertyDescAncestors,NSArray *valueAncestors,NSString *__strong*p_dumpString,NSNumber *__strong*p_walk){*p_walk=@((propertyDescAncestors.count<(__depth)));return(YES);}].UTF8String);)
+
+#define LOGIF(__dependsOnMacro,...) IF(__dependsOnMacro,_DEBLog_time=time(nil);printf("%s",[NSString stringWithFormat:__VA_ARGS__].UTF8String);)
+#define LOGOBJECTIF(__dependsOnMacro,__object,__depth,...) IF(__dependsOnMacro,NSLog(__VA_ARGS__,[PropertyDescription dumpObject:__object filter:^(PropertyDescription *propertyDesc,NSObject *value,NSArray *propertyDescAncestors,NSArray *valueAncestors,NSString *__strong*p_dumpString,NSNumber *__strong*walk){*p_walk=(propertyDescAncestors.count<(__depth))?@(YES):nil;return(YES);}].UTF8String);)
+#define LOGSYSOBJECTIF(__dependsOnMacro,__object,__depth,...) IF(__dependsOnMacro,NSLog(__VA_ARGS__,[PropertyDescription dumpObject:__object filter:^(PropertyDescription *propertyDesc,NSObject *value,NSArray *propertyDescAncestors,NSArray *valueAncestors,NSString *__strong*p_dumpString,NSNumber *__strong*p_walk){*p_walk=@((propertyDescAncestors.count<(__depth)));return(YES);}].UTF8String);)
+
+#define STARTTIMERIF(__dependsOnMacro,__name) IF(__dependsOnMacro,CFTimeInterval _DEB_timer_start_##__name=CACurrentMediaTime();)
+#define FINISHTIMERIF(__dependsOnMacro,__name,...) IF(__dependsOnMacro,CFTimeInterval _DEB_timer_end_##__name=CACurrentMediaTime();NSLog(@" >> %@ took %.4f sec",[NSString stringWithFormat:__VA_ARGS__],_DEB_timer_end_##__name-_DEB_timer_start_##__name);)
+
+
+#ifdef SHOW_COMPILER_MESSAGES
+#define COMPILER_MESSAGE(msg) _Pragma(STR(message(msg)))
+#define COMPILER_WARNING(msg) _Pragma(STR(GCC warning(msg)))
+#else
+#define COMPILER_MESSAGE(msg)
+#define COMPILER_WARNING(msg)
+#endif
+#define STR(X) #X
+
+
+@interface NSObject (Will)
+/**
+ Returns the class name as one word, does not include the module prefix for swift objects
+ @return this class's name
+ */
++(NSString*__nullable)name;
+
+/**
+ Returns the class name as one word, does not include the module prefix for swift objects
+ @return the object's class name
+ */
+@property (readonly,nonatomic,nonnull) NSString *className;
+
++(Class __nullable)byName;
+
+@end
+
+
 @interface NSString(Will)
 
--(const void *__nonnull)asVoidPointerKey;
+-(UIImage *)asImageWithAttributes:(NSDictionary *)attributes size:(CGSize)size;
+
+@property (nonatomic, readonly) Class __nullable getNamedClass;
+-(NSObject *__nullable)makeNewByName;
+
+@property (readonly) const void *__nonnull asVoidPointerKey;
+
+-(BOOL)writeToFileCreatingIntermediateDirectories:(NSString *__nonnull)path atomically:(BOOL)useAuxiliaryFile encoding:(NSStringEncoding)enc error:(NSError *__autoreleasing __nullable *__nullable)error;
 
 @end
 

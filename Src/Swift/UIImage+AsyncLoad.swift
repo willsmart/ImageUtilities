@@ -22,7 +22,7 @@ public class URLLoadHandler : NSObject, NSURLConnectionDataDelegate {
         self.completion = completion
     }
     
-    var data:NSMutableData?
+    public var data:NSMutableData?
     
     @objc public func connectionDidFinishLoading(connection: NSURLConnection) {
         completion(data:data,error:nil)
@@ -41,9 +41,9 @@ public class URLLoadHandler : NSObject, NSURLConnectionDataDelegate {
     }
 }
 
-class UIImageLoadHandler {
-    var loadHandler:URLLoadHandler
-    init(completion:(image:UIImage?,error:NSError?)->(Void)) {
+public class UIImageLoadHandler {
+    public var loadHandler:URLLoadHandler
+    public init(completion:(image:UIImage?,error:NSError?)->(Void)) {
         loadHandler = URLLoadHandler(completion: {(data:NSData?,error:NSError?) in
             let image:UIImage?
             if let data = data {
@@ -58,8 +58,26 @@ class UIImageLoadHandler {
 private var s_currentNSURLConnections=[NSURLConnection]()
 
 public extension NSURL {
-    func load(completion:(data:NSData?,error:NSError?)->(Void))->Bool {
+    public func load(completion:(data:NSData?,error:NSError?)->(Void))->Bool {
         let req = NSURLRequest(URL: self)
+        if let c = NSURLConnection(request: req, delegate: URLLoadHandler(completion: {data, error in
+            objc_sync(NSURL.self){
+                s_currentNSURLConnections = s_currentNSURLConnections.filter{$0.originalRequest !== req}
+            }
+            completion(data:data, error:error)
+        })) {
+            objc_sync(NSURL.self){
+                s_currentNSURLConnections.append(c)
+            }
+            return true
+        }
+        else {
+            completion(data:nil,error:nil)
+            return false
+        }
+    }
+    public func uncachedLoad(timeout:NSTimeInterval, completion:(data:NSData?,error:NSError?)->(Void))->Bool {
+        let req = NSURLRequest(URL: self, cachePolicy: .ReloadIgnoringCacheData, timeoutInterval: timeout)
         if let c = NSURLConnection(request: req, delegate: URLLoadHandler(completion: {data, error in
             objc_sync(NSURL.self){
                 s_currentNSURLConnections = s_currentNSURLConnections.filter{$0.originalRequest !== req}

@@ -40,10 +40,20 @@ public extension UIImage {
         return newImage
     }
 
+    public func withAddedImage(image:UIImage) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+        drawInRect(CGRectMake(0, 0, size.width, size.height))
+        let imSz = CGSizeMake(min(size.width,image.size.width), image.size.height*min(1,size.width/image.size.width))
+        image.drawInRect(CGRectMake((size.width-imSz.width)/2, imSz.height/2, imSz.width, imSz.height))
+        let resultImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return resultImage
+    }
+
     private class var _completionKey:UnsafePointer<Void> {
         get {
             if (s_completionKey == nil) {
-                s_completionKey = "__completion".asVoidPointerKey()
+                s_completionKey = "__completion".asVoidPointerKey
             }
             return s_completionKey!
         }
@@ -51,7 +61,7 @@ public extension UIImage {
     private class var _dataKey:UnsafePointer<Void> {
         get {
             if (s_dataKey == nil) {
-                s_dataKey = "__imageData".asVoidPointerKey()
+                s_dataKey = "__imageData".asVoidPointerKey
             }
             return s_dataKey!
         }

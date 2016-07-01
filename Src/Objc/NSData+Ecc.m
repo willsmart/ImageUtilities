@@ -107,7 +107,7 @@ static int enc32Len() {
                 }
             }
             else {
-                uint16_t sum;
+                uint16_t sum=0;
                 switch (PIXMODINDEXTOCOL((offs+biti)%modLen,pixelModulus)) {
                     case 0:sum = BITFROMPIX(count,pixelModulus,r);break;
                     case 1:sum = BITFROMPIX(count,pixelModulus,g);break;

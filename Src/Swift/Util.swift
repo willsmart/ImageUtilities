@@ -15,7 +15,7 @@ public func async(sec:CFTimeInterval?=nil, block:((Void)->(Void))) {
 
 public extension String {
     public func convertRange(nsrange:NSRange)->Range<String.Index>? {
-        return nsrange.location<0 || nsrange.location+nsrange.length>characters.count ? nil : Range(start:startIndex.advancedBy(nsrange.location), end:startIndex.advancedBy(nsrange.location+nsrange.length))
+        return nsrange.location<0 || nsrange.location+nsrange.length>characters.count ? nil : startIndex.advancedBy(nsrange.location) ..< startIndex.advancedBy(nsrange.location+nsrange.length)
     }
 }
 

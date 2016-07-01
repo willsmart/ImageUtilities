@@ -6,9 +6,10 @@
 //  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 //
 #import <mach/mach.h>
-
+#import "SSZipArchive.h"
 #import "NSData+Compression.h"
 
+time_t _DEBLog_time=0;
 
 NSString *memorySummaryString() {
 #ifdef DEBUG
@@ -52,9 +53,150 @@ unsigned long ARGBFromUIColor(UIColor *__nonnull col) {
            MAX(0,MIN(255,(int)round(b*255.0)));
 }
 
+
+NSString *replaceTokensInFilenameString(NSString *filename) {
+    if ([filename rangeOfString:@"TIMESTAMP"].location!=NSNotFound) {
+        NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+        [dateFormat setDateFormat:@"yyyy-MM-dd_HH-mm"];
+        NSString *dateString=[dateFormat stringFromDate:NSDate.new];
+        [dateFormat setDateFormat:@"yyyy-MM-dd_HH-mm-ss_SSS"];
+        NSString *msDateString=[dateFormat stringFromDate:NSDate.new];
+        filename=[[filename
+            stringByReplacingOccurrencesOfString:@"MSTIMESTAMP" withString:msDateString]
+            stringByReplacingOccurrencesOfString:@"TIMESTAMP" withString:dateString];
+    }
+    return(filename);
+}
+
+NSString *documentPathForFilename(NSString *filename) {
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *basePath = ([paths count] > 0) ? paths[0] : nil;
+    return(!filename?basePath:[basePath stringByAppendingPathComponent:replaceTokensInFilenameString(filename)]);
+}
+
+BOOL saveScreenshot(NSString *filePath) {
+    return(saveScreenshotIfChanged(filePath, nil));
+}
+
+BOOL saveScreenshotIfChanged(NSString *filePath,NSData *__strong*screenshotData) {
+    UIWindow *window=[[UIApplication sharedApplication] windows][0];
+    if ([[UIScreen mainScreen] respondsToSelector:@selector(scale)]) {
+        UIGraphicsBeginImageContextWithOptions(window.bounds.size, NO, [UIScreen mainScreen].scale);
+    }
+    else {
+        UIGraphicsBeginImageContext(window.bounds.size);
+    }
+    [window.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    NSData * data = UIImagePNGRepresentation(image);
+    if (screenshotData) {
+        if ([*screenshotData isEqualToData:data]) return(NO);
+        *screenshotData=data;
+    }
+    return([data writeToFile:filePath atomically:YES]);
+}
+
+NSData *zippedDirectory(NSArray *dirPaths) {
+    BOOL isDir=NO;
+    NSMutableSet *subpaths=[NSMutableSet set];
+    NSFileManager *fileManager=[NSFileManager defaultManager];
+    for (NSString *dirPath in dirPaths) {
+        for (NSString *shortPath in [fileManager subpathsAtPath:dirPath]) {
+            NSString *path=[dirPath stringByAppendingPathComponent:shortPath];
+            if ([fileManager fileExistsAtPath:path isDirectory:&isDir] && !isDir) {
+                [subpaths addObject:path];
+            }
+        }
+    }
+
+    NSString *archivePath=documentPathForFilename(@"zippedLog-MSTIMESTAMP.zip");
+    if ([SSZipArchive createZipFileAtPath:archivePath withFilesAtPaths:subpaths.allObjects]) {
+        NSData *ret=[NSData dataWithContentsOfFile:archivePath];
+        NSError *error=nil;
+        [fileManager removeItemAtPath:archivePath error:&error];
+        return(ret);
+    }
+    else return(nil);
+}
+
+
+
+
+    
+   
+@implementation NSObject(Will)
+
+// i.e. NSString.name == @"NSString"
++(NSString*)name {
+    NSString *ret=NSStringFromClass(self);
+    NSInteger dotAt=[ret rangeOfString:@"." options:NSBackwardsSearch].location;
+    return(dotAt==NSNotFound?ret:[ret substringFromIndex:dotAt+1]);
+}
+
+// i.e. NSString.string.className == @"NSString"
+-(NSString*)className {
+    return self.class.name;
+}
+
++(Class)byName {
+    return self.name.getNamedClass;
+}
+
+@end
+
+
+
+
 @implementation NSString(Will)
 
+
+-(UIImage *)asImageWithAttributes:(NSDictionary *)attributes size:(CGSize)size {
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0);
+    [self drawInRect:CGRectMake(0, 0, size.width, size.height) withAttributes:attributes];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
+}
+
 -(const void *)asVoidPointerKey {return NSSelectorFromString(self);}
+
+
+-(BOOL)writeToFileCreatingIntermediateDirectories:(NSString *)path atomically:(BOOL)useAuxiliaryFile encoding:(NSStringEncoding)enc error:(NSError *__autoreleasing *)error {
+    NSFileManager *fileManager=NSFileManager.defaultManager;
+    NSString *dir=path.stringByDeletingLastPathComponent;
+    BOOL isDir=YES;
+    if (!([fileManager fileExistsAtPath:dir isDirectory:&isDir]&&isDir)) {
+        if (!isDir) {
+            if (![fileManager removeItemAtPath:dir error:error]) {
+                return(NO);
+            }
+        }
+        if (![fileManager createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:error]) {
+            return(NO);
+        }
+    }
+    return([self writeToFile:path atomically:useAuxiliaryFile encoding:enc error:error]);
+}
+
+
+
+-(NSObject*)makeNewByName {
+    return self.getNamedClass.new;
+}
+
+-(Class)getNamedClass {
+    Class ret=NSClassFromString(self);
+    if ((!ret)&&([self rangeOfString:@"."].location==NSNotFound)) {
+        for (NSString *moduleName in @[@"Synesthete",@"SynestheteCommon"]) {
+            if ((ret=NSClassFromString([moduleName stringByAppendingFormat:@".%@",self]))) break;
+            NSString *swiftClassName = [NSString stringWithFormat:@"_TtC%d%@%d%@", (int)moduleName.length, moduleName, (int)self.length, self];
+            if ((ret=NSClassFromString(swiftClassName))) break;
+        }
+    }
+    return(ret);
+}
+
 
 @end
 
@@ -376,11 +518,6 @@ A-z 26 52
 
 #undef DECODEINT
 #undef DECODEBYTES
-
-    
-    
-
-
 
 
 

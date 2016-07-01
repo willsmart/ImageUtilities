@@ -22,7 +22,7 @@ private var s_qrCompression = "Q"
 private func deb(s:AnyObject) {print(s is String ? s as! String : "\(s)")}
 
 public extension UIImage {
-    func decodedDataLayerAsString()->String? {
+    public func decodedDataLayerAsString()->String? {
         if let d = decodedDataLayer() {
             return String(data: d, encoding: NSUTF8StringEncoding)
         }
@@ -30,7 +30,7 @@ public extension UIImage {
     }
     
     
-    func decodedDataLayer()->NSData? {
+    public func decodedDataLayer()->NSData? {
         //let sz = CGSizeMake(max(size.width,size.height), max(size.width,size.height))
         if let (data,size) = pixelBytes() {
             return UIImage.dataLayerInImage(data, imageSize: size)
@@ -41,7 +41,7 @@ public extension UIImage {
     }
     
     
-    class func addDataLayerToImageData(imageData:NSMutableData, imageSize:CGSize, dataLayerData:NSData?=nil, data:NSData?=nil, dataString:String?=nil, pixelModulusOption:Int)->Bool {
+    public class func addDataLayerToImageData(imageData:NSMutableData, imageSize:CGSize, dataLayerData:NSData?=nil, data:NSData?=nil, dataString:String?=nil, pixelModulusOption:Int)->Bool {
         if let dataString = dataString {
             deb("Encode with string [\(dataString.lengthOfBytesUsingEncoding(NSUTF8StringEncoding))]: \(dataString)")
             return addDataLayerToImageData(imageData, imageSize:imageSize, dataLayerData: dataString.dataUsingEncoding(NSUTF8StringEncoding), pixelModulusOption:pixelModulusOption)
@@ -52,7 +52,7 @@ public extension UIImage {
     }
     
     
-    func copiedDataWithDataLayer(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, pixelModulusOption:Int)->(NSMutableData,CGSize)? {
+    public func copiedDataWithDataLayer(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, pixelModulusOption:Int)->(NSMutableData,CGSize)? {
         if let (imgData,size) = pixelBytes() {
             if UIImage.addDataLayerToImageData(imgData, imageSize: size, dataLayerData:dataLayerData, data:data,dataString:string, pixelModulusOption:pixelModulusOption) {
                 return (imgData,size)
@@ -62,7 +62,7 @@ public extension UIImage {
         else {return nil}
     }
     
-    func encodeUsingDataLayer(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, pixelModulusOption:Int)->UIImage? {
+    public func encodeUsingDataLayer(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, pixelModulusOption:Int)->UIImage? {
         if let (data,size) = copiedDataWithDataLayer(dataLayerData:dataLayerData, data:data, string:string, pixelModulusOption:pixelModulusOption) {
             return UIImage.imageFromData(data, size: size)
         }
@@ -82,14 +82,14 @@ public extension UIImage {
     
     
     
-    func exportableDataLayerEncodedCopy(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil)->UIImage? {
+    public func exportableDataLayerEncodedCopy(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil)->UIImage? {
         if let d = exportableDataLayerEncodedRepresentation(dataLayerData:dataLayerData, data:data, string:string) {
             return UIImage(data: d)
         }
         else {return nil}
     }
     
-    func exportableDataLayerEncodedRepresentation(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, pixelModulusOption:Int?=nil)->NSData? {
+    public func exportableDataLayerEncodedRepresentation(dataLayerData dataLayerData:NSData?=nil, data:NSData?=nil, string:String?=nil, pixelModulusOption:Int?=nil)->NSData? {
 
         guard let pixelModulusOption = pixelModulusOption else {
             for pixelModulusOption in 0..<3 {

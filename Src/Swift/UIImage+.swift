@@ -37,7 +37,7 @@ public extension UIImage {
         drawInRect(CGRectMake(0, 0, abs(newSize.width), abs(newSize.height)))
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return newImage
+        return newImage!
     }
 
     public func withAddedImage(image:UIImage) -> UIImage {
@@ -47,7 +47,7 @@ public extension UIImage {
         image.drawInRect(CGRectMake((size.width-imSz.width)/2, imSz.height/2, imSz.width, imSz.height))
         let resultImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return resultImage
+        return resultImage!
     }
 
     private class var _completionKey:UnsafePointer<Void> {
@@ -83,7 +83,7 @@ public extension UIImage {
         //for i in 0..<100 {print("\(i):\(bytes[i]),")}
         //println()
 
-        let provider = CGDataProviderCreateWithData(nil,data!.bytes,Int(round(size.height))*bytesPerRow,nil)
+        let provider = (CGDataProviderCreateWithData(nil,data!.bytes,Int(round(size.height))*bytesPerRow) {a,b,c in})!
         let imageRef = CGImageCreate(Int(round(size.width)), Int(round(size.height)), bitsPerComponent, bitsPerPixel, bytesPerRow, colorSpaceRef, bitmapInfo, provider, nil, false, renderingIntent)
 
         let ret:UIImage? = (imageRef == nil ? nil : UIImage(CGImage: imageRef!))
@@ -109,14 +109,14 @@ public extension UIImage {
         if (ret == nil) {
             return nil
         }
-        let imageRef = CGImage
+        let imageRef = CGImage!
         let width = CGImageGetWidth(imageRef)
         let height = CGImageGetHeight(imageRef)
 
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let ptr = ret!.mutableBytes
 
-        let context = CGBitmapContextCreate(ptr, width, height, 8, 4 * width, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue | CGBitmapInfo.ByteOrderDefault.rawValue)
+        let context = CGBitmapContextCreate(ptr, width, height, 8, 4 * width, colorSpace, CGImageAlphaInfo.PremultipliedLast.rawValue | CGBitmapInfo.ByteOrderDefault.rawValue)!
         CGContextDrawImage(context, CGRectMake(0, 0, CGFloat(width), CGFloat(height)), imageRef)
 
         //let bytes = UnsafePointer<UInt8>(ptr)

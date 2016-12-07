@@ -44,7 +44,7 @@ public extension String {
 public extension NSURL {
     public var pathRelativeToDocumentsFolder:String? {
         get {
-            let str = absoluteString
+            let str = absoluteString!
             if fileURL {
                 if let r = str.rangeOfString("/Application/[\\w-]+/Documents/", options: .RegularExpressionSearch) {
                     return str.substringFromIndex(r.endIndex)
@@ -61,14 +61,14 @@ public extension NSURL {
             path = "doc \(relPath)"
         }
         else {
-            path = absoluteString
+            path = absoluteString!
         }
-        return dir.URLByAppendingPathComponent(path.escapeForPathComponent)
+        return dir.URLByAppendingPathComponent(path.escapeForPathComponent)!
     }
     
     public var thumbnailURL:NSURL {
         get {
-            return annexFileURLInDirectory(documentsFolder.URLByAppendingPathComponent("thumbnails", isDirectory: true))
+            return annexFileURLInDirectory(documentsFolder.URLByAppendingPathComponent("thumbnails", isDirectory: true)!)
         }
     }
 }
